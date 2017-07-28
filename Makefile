@@ -30,6 +30,7 @@ clean: clean-build clean-pyc clean-test
 clean-build:
 	rm -fr build/
 	rm -fr dist/
+	rm -fr rpm
 	rm -fr .eggs/
 	find . -name '*.egg-info' -exec rm -fr {} +
 	find . -name '*.egg' -exec rm -f {} +
@@ -53,6 +54,18 @@ test:
 
 test-all:
 	tox
+
+# Centos/RH packages
+RPMBUILD = rpmbuild
+TARGET = collectd-rabbitmq
+.PHONY: rpmbuild
+
+rpm :
+	python setup.py sdist
+	mkdir -p rpm/{SOURCES,SPECS}
+	cp $(TARGET).spec rpm/SPECS
+	cp dist/*.tar.gz rpm/SOURCES
+	$(RPMBUILD) --define "_topdir ${PWD}/rpm" -ba rpm/SPECS/$(TARGET).spec
 
 coverage:
 	coverage run --source=collectd_rabbitmq setup.py test
